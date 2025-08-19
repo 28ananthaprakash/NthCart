@@ -20,3 +20,34 @@ class UserOut(BaseModel):
 class LoginResponse(BaseModel):
     token: str
     user: UserOut
+
+
+class AddToCartRequest(BaseModel):
+    item_id: int
+    qty: int
+
+
+class CheckoutRequest(BaseModel):
+    discount_code: str | None = None
+
+
+class CartLineItem(BaseModel):
+    item_id: int
+    name: str
+    price: float
+    qty: int
+    line_total: float
+
+
+class CartView(BaseModel):
+    items: List[CartLineItem]
+    total: float
+
+
+class OrderOut(BaseModel):
+    id: str
+    username: str
+    items: List[Any]
+    subtotal: float
+    discount: float
+    total: float
