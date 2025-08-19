@@ -1,0 +1,83 @@
+{
+  "config": {
+    "nth_order": 5,
+    "coupon_percent": 10
+  },
+  "items": [
+    {
+      "id": 1,
+      "name": "Auto Insurance - Comprehensive",
+      "price": 499.0,
+      "stock": 1000
+    },
+    {
+      "id": 2,
+      "name": "Home Insurance - Standard",
+      "price": 349.0,
+      "stock": 500
+    },
+    {
+      "id": 3,
+      "name": "Health Insurance - Bronze",
+      "price": 299.0,
+      "stock": 200
+    },
+    {
+      "id": 4,
+      "name": "Travel Insurance - Annual",
+      "price": 59.0,
+      "stock": 1000
+    }
+  ],
+  "users": {
+    "alex": {
+      "id": "user-alex-1",
+      "username": "alex",
+      "email": "alex@quicktest.com",
+      "password": "11111111",
+      "orders_count": 0,
+      "total_spent": 0.0,
+      "cart": [],
+      "is_admin": false
+    },
+    "ananth": {
+      "id": "user-ananth-1",
+      "username": "ananth",
+      "email": "ananth@gmail.com",
+      "password": "22222222",
+      "orders_count": 0,
+      "total_spent": 0.0,
+      "cart": [],
+      "is_admin": true
+    },
+    "bob": {
+      "id": "user-bob-1",
+      "username": "bob",
+      "email": "bob@gmail.com",
+      "password": "33333333",
+      "orders_count": 5,
+      "total_spent": 2495.0,
+      "cart": [],
+      "is_admin": false
+    }
+  },
+  "coupons": {
+    "CB0B1234": {
+      "user_id": "user-bob-1",
+      "percent_discount": 10,
+      "used": false,
+      "awarded_on_order_id": "order-bob-1",
+      "expires_on": "2025-12-31"
+    }
+  },
+  "orders": [
+    {
+      "id": "order-bob-1",
+      "username": "bob",
+      "items": [{ "item_id": 2, "qty": 1 }],
+      "subtotal": 349.0,
+      "discount": 34.9,
+      "total": 314.1
+    }
+  ]
+}
