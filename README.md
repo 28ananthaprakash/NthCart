@@ -23,3 +23,4 @@ NthCart is a shopping cart application that offers a unique discount system wher
 
 1. Given the requirements are simple, I've used handlers.py and models.py. But I strongly recommend Ruby on Rails folder structure as a blueprint or a better structure (for example, event driven architecture) if the requirement has the potential to grow.
 2. To improve the security and logging, middlewares can be a useful addition. 
+3. Add a feature for the user to see available coupons and complete CRUD for the current APIs

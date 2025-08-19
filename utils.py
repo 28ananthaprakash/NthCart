@@ -6,7 +6,12 @@ import jwt
 import datetime
 import os
 
-DATA_PATH = Path(__file__).parent / "data.json"
+# Prefer a writable /tmp/data.json on platforms like Vercel. Allow explicit override
+# via the DATA_PATH environment variable. Fall back to the repository copy if
+# /tmp/data.json is not present.
+_proj_data = Path(__file__).parent / "data.json"
+_tmp_data = Path("/tmp/data.json")
+DATA_PATH = Path(os.environ.get("DATA_PATH")) if os.environ.get("DATA_PATH") else (_tmp_data if _tmp_data.exists() else _proj_data)
 JWT_SECRET = os.environ.get("JWT_SECRET", "Ananthaprakash") # TO DO: use .env to set JWT_SECRET
 JWT_ALGO = "HS256"
 JWT_EXP_DELTA_SECONDS = 60 * 60 * 24 # 1 day
