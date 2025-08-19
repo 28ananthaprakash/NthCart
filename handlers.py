@@ -10,6 +10,11 @@ from models import AdminGenerateDiscountRequest
 
 router = APIRouter()
 
+@router.get("/")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "Running", "message": "Welcome to NthCart app. Use /docs route for API documentation."}
+
 
 @router.post("/login", response_model=LoginResponse)
 async def login(payload: LoginRequest, response: Response):
