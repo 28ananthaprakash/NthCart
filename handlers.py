@@ -119,7 +119,7 @@ async def view_cart(x_token: Optional[str] = Header(None)):
 async def checkout(payload: CheckoutRequest = Body(...), x_token: Optional[str] = Header(None)):
     """Checkout the current cart. Optional body: {"discount_code": "CODE"}.
 
-    Applies a single coupon if valid and unused, decrements stock, creates an order, clears cart, and increments orders_count.
+    Applies a single coupon if valid and unused, decrements stock, creates an order, clears cart, and increments order_count_until_coupon.
     """
     user = utils.require_user(x_token)
     data = utils.load_data()
@@ -170,8 +170,8 @@ async def checkout(payload: CheckoutRequest = Body(...), x_token: Optional[str] 
 
     # clear cart
     data["users"][user["username"]]["cart"] = []
-    # increment orders_count and total_spent
-    data["users"][user["username"]]["orders_count"] = data["users"][user["username"]].get("orders_count", 0) + 1
+    # increment order_count_until_coupon and total_spent
+    data["users"][user["username"]]["order_count_until_coupon"] = data["users"][user["username"]].get("order_count_until_coupon", 0) + 1
     data["users"][user["username"]]["total_spent"] = round(data["users"][user["username"]].get("total_spent", 0.0) + total, 2)
 
     utils.save_data(data)
@@ -186,7 +186,7 @@ async def admin_generate_discount(payload: AdminGenerateDiscountRequest = Body(.
     Body: {"email": "...", "override": true|false} and returns a coupon
     Creates a single-use coupon with percent taken from config (`coupon_percent`).
     If `override` is true the admin may create a coupon regardless of eligibility.
-    Eligibility (non-override): user's `orders_count` must be >= config[`nth_order`].
+    Eligibility (non-override): user's `order_count_until_coupon` must be >= config[`nth_order`].
     """
     admin = utils.require_admin(x_token)
     email = payload.email
@@ -201,7 +201,7 @@ async def admin_generate_discount(payload: AdminGenerateDiscountRequest = Body(.
     nth = cfg.get("nth_order", 5)
     percent = cfg.get("coupon_percent", 10)
 
-    eligible = user.get("orders_count", 0) >= nth
+    eligible = user.get("order_count_until_coupon", 0) >= nth
     if not eligible and not override:
         raise HTTPException(status_code=400, detail="user not eligible for coupon")
 
@@ -211,10 +211,12 @@ async def admin_generate_discount(payload: AdminGenerateDiscountRequest = Body(.
         "user_id": user.get("id"),
         "percent_discount": percent,
         "used": False,
-        "awarded_on_order_id": None,
         "expires_on": "2025-12-31",
     }
     data.setdefault("coupons", {})[code] = coupon
+    # subtract nth_order so the user has to wait for the next nth orders before another coupon
+    prev = data["users"][user["username"]].get("order_count_until_coupon", 0)
+    data["users"][user["username"]]["order_count_until_coupon"] = max(prev - nth, 0)
     utils.save_data(data)
     return {"coupon_code": code}
 
