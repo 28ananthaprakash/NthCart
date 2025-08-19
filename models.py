@@ -51,3 +51,8 @@ class OrderOut(BaseModel):
     subtotal: float
     discount: float
     total: float
+
+
+class AdminGenerateDiscountRequest(BaseModel):
+    email: EmailStr
+    override: bool = False

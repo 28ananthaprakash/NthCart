@@ -4,6 +4,9 @@ import utils
 from models import LoginRequest, LoginResponse, UserOut
 from models import AddToCartRequest, CartView, CartLineItem, CheckoutRequest, OrderOut
 from fastapi import Body
+from fastapi import Query
+import uuid
+from models import AdminGenerateDiscountRequest
 
 router = APIRouter()
 
@@ -174,3 +177,104 @@ async def checkout(payload: CheckoutRequest = Body(...), x_token: Optional[str] 
     utils.save_data(data)
 
     return order
+
+
+@router.post("/admin/generate_discount")
+async def admin_generate_discount(payload: AdminGenerateDiscountRequest = Body(...), x_token: Optional[str] = Header(None)):
+    """Generate a coupon for a user. Admin-only.
+
+    Body: {"email": "...", "override": true|false} and returns a coupon
+    Creates a single-use coupon with percent taken from config (`coupon_percent`).
+    If `override` is true the admin may create a coupon regardless of eligibility.
+    Eligibility (non-override): user's `orders_count` must be >= config[`nth_order`].
+    """
+    admin = utils.require_admin(x_token)
+    email = payload.email
+    override = payload.override
+
+    data = utils.load_data()
+    user = next((u for u in data.get("users", {}).values() if u.get("email") == email), None)
+    if not user:
+        raise HTTPException(status_code=404, detail="user not found")
+
+    cfg = data.get("config", {})
+    nth = cfg.get("nth_order", 5)
+    percent = cfg.get("coupon_percent", 10)
+
+    eligible = user.get("orders_count", 0) >= nth
+    if not eligible and not override:
+        raise HTTPException(status_code=400, detail="user not eligible for coupon")
+
+    # generate a reasonably unique coupon code
+    code = f"C{uuid.uuid4().hex[:7].upper()}"
+    coupon = {
+        "user_id": user.get("id"),
+        "percent_discount": percent,
+        "used": False,
+        "awarded_on_order_id": None,
+        "expires_on": "2025-12-31",
+    }
+    data.setdefault("coupons", {})[code] = coupon
+    utils.save_data(data)
+    return {"coupon_code": code}
+
+
+@router.get("/admin/stats")
+async def admin_stats(x_token: Optional[str] = Header(None), email: Optional[str] = Query(None)):
+    """Admin statistics endpoint.
+
+    Query: `?email=...` to limit stats to a specific user by email.
+
+    Returns per-user stats including items_purchased_count, total_purchase_amount, coupons (list), and total_discount_amount.
+    If `email` query param is provided, returns only that user's stats.
+    """
+    admin = utils.require_admin(x_token)
+    data = utils.load_data()
+
+    # precompute orders by username
+    orders = data.get("orders", [])
+    orders_by_user: dict = {}
+    for o in orders:
+        u = o.get("username")
+        orders_by_user.setdefault(u, []).append(o)
+
+    # map coupons by user_id
+    coupons = data.get("coupons", {})
+    coupons_by_user: dict = {}
+    for code, c in coupons.items():
+        uid = c.get("user_id")
+        coupons_by_user.setdefault(uid, []).append(code)
+
+    results = []
+    for uname, u in data.get("users", {}).items():
+        # allow filtering by email instead of username
+        if email and u.get("email") != email:
+            continue
+        user_orders = orders_by_user.get(uname, [])
+        items_purchased_count = 0
+        total_purchase_amount = 0.0
+        total_discount_amount = 0.0
+        for o in user_orders:
+            # sum quantities
+            for li in o.get("items", []):
+                items_purchased_count += li.get("qty", 0)
+            total_purchase_amount += float(o.get("total", 0.0))
+            total_discount_amount += float(o.get("discount", 0.0))
+
+        user_coupons = coupons_by_user.get(u.get("id"), [])
+
+        results.append({
+            "username": uname,
+            "email": u.get("email"),
+            "items_purchased_count": items_purchased_count,
+            "total_purchase_amount": round(total_purchase_amount, 2),
+            "coupons": user_coupons,
+            "total_discount_amount": round(total_discount_amount, 2),
+        })
+
+    # if email was requested, return single object
+    if email:
+        if not results:
+            raise HTTPException(status_code=404, detail="user not found")
+        return results[0]
+    return results
