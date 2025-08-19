@@ -39,20 +39,6 @@ async def login(payload: LoginRequest, response: Response):
 
     return LoginResponse(token=token, user=UserOut(**{k: v for k, v in user.items() if k != "password"}))
 
-# Only for testing - to be removed soon
-@router.get("/protected/user")
-async def protected_user(x_token: Optional[str] = Header(None)):
-    """Example user-protected endpoint. Returns the username when a valid token is provided."""
-    user = utils.require_user(x_token)
-    return {"username": user["username"]}
-
-# Only for testing - to be removed soon
-@router.get("/protected/admin")
-async def protected_admin(x_token: Optional[str] = Header(None)):
-    """Example admin-protected endpoint. Requires an admin token."""
-    user = utils.require_admin(x_token)
-    return {"username": user["username"], "admin": True}
-
 
 @router.get("/items")
 async def list_items(x_token: Optional[str] = Header(None)):
