@@ -8,19 +8,19 @@
       "id": 1,
       "name": "Auto Insurance - Comprehensive",
       "price": 499.0,
-      "stock": 1000
+      "stock": 990
     },
     {
       "id": 2,
       "name": "Home Insurance - Standard",
       "price": 349.0,
-      "stock": 500
+      "stock": 455
     },
     {
       "id": 3,
       "name": "Health Insurance - Bronze",
       "price": 299.0,
-      "stock": 200
+      "stock": 197
     },
     {
       "id": 4,
@@ -35,8 +35,8 @@
       "username": "alex",
       "email": "alex@quicktest.com",
       "password": "11111111",
-      "orders_count": 0,
-      "total_spent": 0.0,
+      "order_count_until_coupon": 5,
+      "total_spent": 5887.0,
       "cart": [],
       "is_admin": false
     },
@@ -45,7 +45,7 @@
       "username": "ananth",
       "email": "ananth@gmail.com",
       "password": "22222222",
-      "orders_count": 0,
+      "order_count_until_coupon": 0,
       "total_spent": 0.0,
       "cart": [],
       "is_admin": true
@@ -55,18 +55,17 @@
       "username": "bob",
       "email": "bob@gmail.com",
       "password": "33333333",
-      "orders_count": 5,
-      "total_spent": 2495.0,
+      "order_count_until_coupon": 1,
+      "total_spent": 1725.0,
       "cart": [],
       "is_admin": false
     }
   },
   "coupons": {
-    "CB0B1234": {
-      "user_id": "user-bob-1",
+    "C0D764C4": {
+      "user_id": "user-alex-1",
       "percent_discount": 10,
       "used": false,
-      "awarded_on_order_id": "order-bob-1",
       "expires_on": "2025-12-31"
     }
   },
@@ -74,10 +73,80 @@
     {
       "id": "order-bob-1",
       "username": "bob",
-      "items": [{ "item_id": 2, "qty": 1 }],
-      "subtotal": 349.0,
-      "discount": 34.9,
-      "total": 314.1
+      "items": [
+        {
+          "item_id": 2,
+          "qty": 5
+        }
+      ],
+      "subtotal": 1725.0,
+      "discount": 0.0,
+      "total": 1725.0
+    },
+    {
+      "id": "order-alex-2",
+      "username": "alex",
+      "items": [
+        {
+          "item_id": 1,
+          "qty": 1
+        }
+      ],
+      "subtotal": 499.0,
+      "discount": 0.0,
+      "total": 499.0
+    },
+    {
+      "id": "order-alex-3",
+      "username": "alex",
+      "items": [
+        {
+          "item_id": 3,
+          "qty": 3
+        }
+      ],
+      "subtotal": 897.0,
+      "discount": 0.0,
+      "total": 897.0
+    },
+    {
+      "id": "order-alex-4",
+      "username": "alex",
+      "items": [
+        {
+          "item_id": 1,
+          "qty": 3
+        }
+      ],
+      "subtotal": 1497.0,
+      "discount": 0.0,
+      "total": 1497.0
+    },
+    {
+      "id": "order-alex-5",
+      "username": "alex",
+      "items": [
+        {
+          "item_id": 1,
+          "qty": 3
+        }
+      ],
+      "subtotal": 1497.0,
+      "discount": 0.0,
+      "total": 1497.0
+    },
+    {
+      "id": "order-alex-6",
+      "username": "alex",
+      "items": [
+        {
+          "item_id": 1,
+          "qty": 3
+        }
+      ],
+      "subtotal": 1497.0,
+      "discount": 0.0,
+      "total": 1497.0
     }
   ]
 }
